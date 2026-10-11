@@ -7,6 +7,13 @@
 
   var url = canvas.dataset.url + '?day=' + encodeURIComponent(canvas.dataset.day);
 
+  // The server buckets each UTC five-minute slot; draw the axis in the viewer's
+  // timezone so a local evening activation is not plotted as a small-hours one.
+  var localTime = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  function localLabel(day, hhmm) {
+    return localTime.format(new Date(day + 'T' + hhmm + ':00Z'));
+  }
+
   fetch(url)
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -16,7 +23,7 @@
       new Chart(canvas, {
         type: 'bar',
         data: {
-          labels: d.labels,
+          labels: d.labels.map(function (t) { return localLabel(d.day, t); }),
           datasets: [{
             label: 'activations',
             data: d.counts,

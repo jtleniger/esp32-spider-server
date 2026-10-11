@@ -4,7 +4,7 @@
 [x] "The rig forgets the mode on every boot; this server re-sends it when the uptime drops." -> remove this functionality and help text
 [x] Add space between 4 main mode buttons and single channel mode, and simplify the UI "Single Channel" -> Dropdown -> "Apply"
 [x] Remove "Activation Timestamps" collapse from logs, I don't need to see them in the UI
-[] Display chart on logs page in local browser time
+[x] Display chart on logs page in local browser time
 [] Referencing ../esp32-spider, include description text for each configuration value
 [] Change text to "Save" and "Reset" on config page
 [] Change interval for activation ingestion to once every half hour
