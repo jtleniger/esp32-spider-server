@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}ESP32 Spider Control{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/spooky.css">
+<script src="/static/vendor/htmx.min.js" defer></script>
+{% block head %}{% endblock %}
+</head>
+<body>
+<header>
+  <h1>ESP32 Spider Control</h1>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/config">Tuning</a>
+    <a href="/logs">Logs</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <span>spider <code>{{ base_url }}</code></span>
+  <span>polling every {{ poll_secs }}s</span>
+</footer>
+</body>
+</html>

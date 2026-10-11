@@ -1,0 +1,23 @@
+<div id="config-form">
+  {% match banner %}{% when Some with (b) %}<div class="banner {% if b.ok %}ok{% else %}error{% endif %}">{{ b.text }}</div>{% when None %}{% endmatch %}
+  {% if offline %}<div class="banner error">spider unreachable — {% match cache_age %}{% when Some with (a) %}showing cached values ({{ a }}){% when None %}showing the last known values{% endmatch %}</div>{% endif %}
+  <form hx-post="/config" hx-target="#config-form" hx-swap="outerHTML">
+    {% for g in groups %}
+    <fieldset>
+      <legend>{{ g.name }}</legend>
+      {% for k in g.knobs %}
+      <div class="knob">
+        <label for="{{ k.name }}">{{ k.name }}</label>
+        {% match k.value %}{% when Some with (v) %}<input type="number" id="{{ k.name }}" name="{{ k.name }}" min="{{ k.min }}" max="{{ k.max }}" value="{{ v }}">{% when None %}<input type="number" id="{{ k.name }}" name="{{ k.name }}" min="{{ k.min }}" max="{{ k.max }}" placeholder="{{ k.default }}">{% endmatch %}
+        <small>{{ k.min }}–{{ k.max }} {{ k.unit }}, default {{ k.default }}</small>
+      </div>
+      {% endfor %}
+    </fieldset>
+    {% endfor %}
+    <button type="submit">Save changes</button>
+  </form>
+  <form hx-post="/config/reset" hx-target="#config-form" hx-swap="outerHTML">
+    <button hx-confirm="Reset every knob to the firmware defaults?">Reset to defaults</button>
+  </form>
+  <p class="muted">Only the knobs you change are sent, and never more than 16 per request.</p>
+</div>

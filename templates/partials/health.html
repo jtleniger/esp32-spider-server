@@ -1,0 +1,16 @@
+<div id="health" hx-get="/health/partial" hx-trigger="every 5s" hx-swap="outerHTML">
+  {% match banner %}{% when Some with (b) %}<div class="banner {% if b.ok %}ok{% else %}error{% endif %}">{{ b.text }}</div>{% when None %}{% endmatch %}
+  <p>
+    <span class="pill {% if online %}ok{% else %}offline{% endif %}">{% if online %}online{% else %}offline{% endif %}</span>
+    <span class="muted">{{ last_ok_text }}</span>
+  </p>
+  {% if never_seen %}<p class="muted">rig unreachable — check the light switch</p>{% endif %}
+  <dl class="stats">
+    <dt>Mode</dt><dd>{{ mode_label }}</dd>
+    {% match uptime_text %}{% when Some with (u) %}<dt>Uptime</dt><dd>{{ u }}</dd>{% when None %}{% endmatch %}
+    <dt>Clock</dt><dd>{{ clock_text }}</dd>
+    {% match log_files %}{% when Some with (n) %}<dt>Log files</dt><dd>{{ n }}</dd>{% when None %}{% endmatch %}
+    {% match free_text %}{% when Some with (f) %}<dt>Free space</dt><dd>{{ f }}</dd>{% when None %}{% endmatch %}
+  </dl>
+  {% match offline_reason %}{% when Some with (r) %}<p class="muted">last error: {{ r }}</p>{% when None %}{% endmatch %}
+</div>

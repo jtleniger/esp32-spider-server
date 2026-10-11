@@ -1,0 +1,23 @@
+[Unit]
+Description=ESP32 spider control web server
+Documentation=https://github.com/jtleniger/esp32-spider-server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=justin
+Group=justin
+WorkingDirectory=/home/justin
+Environment=SPIDER_LISTEN=0.0.0.0:8080
+Environment=SPIDER_URL=http://spider.local
+Environment=SPIDER_DB_PATH=/home/justin/spider-server.db
+Environment=RUST_LOG=info
+ExecStart=/home/justin/esp32-spider-server
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

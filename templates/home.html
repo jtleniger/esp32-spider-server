@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Home — ESP32 Spider Control{% endblock %}
+{% block content %}
+{{ health_html|safe }}
+
+<h2>Mode</h2>
+<div class="panel">
+  <form hx-post="/mode" hx-target="#health" hx-swap="outerHTML">
+    {% for m in mode_buttons %}<button name="m" value="{{ m.n }}" title="{{ m.desc }}"{% if m.active %} class="active"{% endif %}>{{ m.name }}</button>
+    {% endfor %}
+    <div class="knob">
+      <label for="channel">Single channel (mode 1)</label>
+      <select id="channel" name="c">
+        {% for c in channels %}<option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+      <small>lights only that channel at full brightness; ignores the radar</small>
+    </div>
+    <button name="m" value="1">Apply channel</button>
+  </form>
+  <p class="muted">The rig forgets the mode on every boot; this server re-sends it when the uptime drops.</p>
+  <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">Clear logs</button>
+</div>
+{% endblock %}

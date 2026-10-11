@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Logs — ESP32 Spider Control{% endblock %}
+{% block head %}<script src="/static/vendor/chart.umd.min.js"></script>
+<script src="/static/js/app.js" defer></script>{% endblock %}
+{% block content %}
+<h2>Activations — {{ day }}</h2>
+<div class="day-nav">
+  <a href="/logs?day={{ prev_day }}">← {{ prev_day }}</a>
+  <form method="get" action="/logs">
+    <input type="date" name="day" value="{{ day }}">
+    <button type="submit">Go</button>
+  </form>
+  <a href="/logs?day={{ next_day }}">{{ next_day }} →</a>
+  {% if is_today %}{% else %}<a href="/logs?day={{ today }}">today</a>{% endif %}
+</div>
+<div class="chart-wrap"><canvas id="activation-chart" data-url="/logs/data" data-day="{{ day }}"></canvas></div>
+{% if no_activations %}<p class="muted">no activations recorded for this day</p>{% endif %}
+
+<h2>Log files</h2>
+{% if has_files %}
+<table>
+  <thead><tr><th>File</th><th>Size</th></tr></thead>
+  <tbody>
+    {% for f in files %}<tr><td><code>{{ f.name }}</code></td><td>{{ f.size_text }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="muted">no log files recorded for this day</p>{% endif %}
+
+<details>
+  <summary>Activation timestamps ({{ total }})</summary>
+  <div class="stamps">{% for s in stamps %}<code>{{ s }}</code>{% endfor %}</div>
+  {% if has_more %}<p class="muted">… and {{ more }} more</p>{% endif %}
+</details>
+{% endblock %}
