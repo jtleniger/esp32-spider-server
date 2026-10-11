@@ -15,6 +15,6 @@
   </dl>
   {% match offline_reason %}{% when Some with (r) %}<p class="muted">last error: {{ r }}</p>{% when None %}{% endmatch %}
   <div class="row">
-    <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">clear logs</button>
+    <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider? Locally stored history is kept.">clear logs</button>
   </div>
 </div>

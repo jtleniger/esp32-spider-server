@@ -81,7 +81,7 @@ Action endpoints (all HTMX, all rendered back into the page):
 | `POST /mode` | `POST /mode?m=` on the rig (`c` for mode 1), then re-renders the fragment and buttons. |
 | `POST /config` | Sends **only changed** knobs, at most 16 per request. |
 | `POST /config/reset` | `POST /config/reset` on the rig, then re-reads the values. |
-| `POST /logs/clear` | Clears the rig's log files **and** the local history. |
+| `POST /logs/clear` | Clears the rig's log files; the local history is kept. |
 | `GET /logs/data` | JSON for the chart (labels, 288 counts, totals). |
 
 ## Operational notes
@@ -93,7 +93,8 @@ Action endpoints (all HTMX, all rendered back into the page):
 - Local history **survives spider power cycles** and restarts: activations are keyed by
   timestamp, so re-fetching a growing file or re-reading it after a restart never
   double-counts.
-- **Clear logs** wipes both sides — the rig's LittleFS log files and the local history.
+- **Clear logs** frees the rig's LittleFS by deleting its log files; the local history
+  in SQLite is kept, so `/logs` still renders every day already ingested.
 - The rig returns at most the **newest 32** log files from `/logs`; older files are never
   fetched. `/health`'s `log_files` is the true count.
 - `spider.local` needs mDNS (nss-mdns/avahi) on the host. If it does not resolve, set
