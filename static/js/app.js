@@ -27,8 +27,8 @@
           datasets: [{
             label: 'activations',
             data: d.counts,
-            backgroundColor: 'rgba(255,117,24,.75)',
-            borderColor: '#ff7518',
+            backgroundColor: '#ff7a18',
+            borderColor: '#ff7a18',
             borderWidth: 1
           }]
         },
@@ -41,13 +41,13 @@
           plugins: { legend: { display: false }, tooltip: { displayColors: false } },
           scales: {
             x: {
-              ticks: { color: '#8a8377', maxTicksLimit: 12, autoSkip: true },
-              grid: { color: '#2a2620' }
+              ticks: { color: '#9a92a6', maxTicksLimit: 12, autoSkip: true },
+              grid: { color: '#2c2836' }
             },
             y: {
               beginAtZero: true,
-              ticks: { color: '#8a8377', precision: 0 },
-              grid: { color: '#2a2620' }
+              ticks: { color: '#9a92a6', precision: 0 },
+              grid: { color: '#2c2836' }
             }
           }
         }

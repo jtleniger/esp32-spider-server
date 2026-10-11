@@ -10,19 +10,23 @@
 </head>
 <body>
 <header>
-  <h1>ESP32 Spider Control</h1>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/config">Tuning</a>
-    <a href="/logs">Logs</a>
-  </nav>
+  <div class="wrap">
+    <h1>ESP32 Spider Control</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/config">Tuning</a>
+      <a href="/logs">Logs</a>
+    </nav>
+  </div>
 </header>
-<main>
+<main class="wrap">
 {% block content %}{% endblock %}
 </main>
 <footer>
-  <span>spider <code>{{ base_url }}</code></span>
-  <span>polling every {{ poll_secs }}s</span>
+  <div class="wrap">
+    <span>spider <code>{{ base_url }}</code></span>
+    <span>polling every {{ poll_secs }}s</span>
+  </div>
 </footer>
 </body>
 </html>

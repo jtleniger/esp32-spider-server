@@ -1,4 +1,4 @@
-<div id="health" hx-get="/health/partial" hx-trigger="every 5s" hx-swap="outerHTML">
+<div id="health" class="panel" hx-get="/health/partial" hx-trigger="every 5s" hx-swap="outerHTML">
   {% match banner %}{% when Some with (b) %}<div class="banner {% if b.ok %}ok{% else %}error{% endif %}">{{ b.text }}</div>{% when None %}{% endmatch %}
   <p>
     <span class="pill {% if online %}ok{% else %}offline{% endif %}">{% if online %}online{% else %}offline{% endif %}</span>
