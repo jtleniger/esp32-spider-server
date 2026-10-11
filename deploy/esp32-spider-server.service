@@ -8,12 +8,12 @@ Wants=network-online.target
 Type=simple
 User=justin
 Group=justin
-WorkingDirectory=/home/justin
+WorkingDirectory=/home/justin/esp32-spider-server
 Environment=SPIDER_LISTEN=0.0.0.0:8003
 Environment=SPIDER_URL=http://spider.local
-Environment=SPIDER_DB_PATH=/home/justin/spider-server.db
+Environment=SPIDER_DB_PATH=/home/justin/esp32-spider-server/spider-server.db
 Environment=RUST_LOG=info
-ExecStart=/home/justin/esp32-spider-server
+ExecStart=/home/justin/esp32-spider-server/esp32-spider-server
 Restart=on-failure
 RestartSec=5s
 NoNewPrivileges=true

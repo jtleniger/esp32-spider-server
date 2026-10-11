@@ -41,7 +41,8 @@ cargo build --release
 ## Install and run under systemd
 
 ```bash
-sudo install -m 0755 target/release/esp32-spider-server /home/justin/esp32-spider-server
+sudo install -d -o justin -g justin /home/justin/esp32-spider-server
+sudo install -m 0755 target/release/esp32-spider-server /home/justin/esp32-spider-server/
 sudo cp deploy/esp32-spider-server.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now esp32-spider-server
@@ -49,9 +50,11 @@ systemctl status esp32-spider-server
 journalctl -u esp32-spider-server -f
 ```
 
-The unit runs as `User=justin Group=justin` with `ExecStart=/home/justin/esp32-spider-server`
-and writes its database to `/home/justin/spider-server.db` — the install path above must
-match `ExecStart` exactly.
+The unit runs as `User=justin Group=justin` with
+`ExecStart=/home/justin/esp32-spider-server/esp32-spider-server`,
+`WorkingDirectory=/home/justin/esp32-spider-server`, and writes its database to
+`/home/justin/esp32-spider-server/spider-server.db` — the install path above must match
+the folder in `ExecStart` exactly.
 
 ## Configuration
 
