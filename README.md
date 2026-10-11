@@ -69,7 +69,7 @@ match `ExecStart` exactly.
 |---|---|
 | `/` | Health (online/offline, mode, uptime, clock, log count, free space) plus the mode buttons and the clear-logs action. |
 | `/config` | All 58 tuning knobs, grouped as `API.md` groups them, with ranges and defaults. |
-| `/logs` | One UTC day of activations: a five-minute histogram (288 buckets), the log files seen for that day and the raw timestamps. |
+| `/logs` | One UTC day of activations: a five-minute histogram (288 buckets) and the log files seen for that day. |
 
 Action endpoints (all HTMX, all rendered back into the page):
 

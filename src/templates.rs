@@ -174,11 +174,7 @@ pub struct LogsView {
     pub is_today: bool,
     pub files: Vec<FileView>,
     pub has_files: bool,
-    pub stamps: Vec<String>,
-    pub total: i64,
     pub no_activations: bool,
-    pub has_more: bool,
-    pub more: i64,
     pub base_url: String,
     pub poll_secs: u64,
 }

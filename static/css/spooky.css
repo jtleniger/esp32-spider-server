@@ -234,17 +234,4 @@ th { color: var(--muted); font-weight: 400; text-transform: uppercase; font-size
 .day-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 .day-nav form { display: flex; align-items: center; gap: 0.5rem; margin: 0; }
 
-details { margin-top: 0.75rem; }
-summary { cursor: pointer; color: var(--pumpkin); }
-
-.stamps { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
-
-.stamps code {
-  font-size: 0.76rem;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 0.1rem 0.35rem;
-  color: var(--muted);
-}
-
 .muted { color: var(--muted); }

@@ -26,10 +26,4 @@
   </tbody>
 </table>
 {% else %}<p class="muted">no log files recorded for this day</p>{% endif %}
-
-<details>
-  <summary>Activation timestamps ({{ total }})</summary>
-  <div class="stamps">{% for s in stamps %}<code>{{ s }}</code>{% endfor %}</div>
-  {% if has_more %}<p class="muted">… and {{ more }} more</p>{% endif %}
-</details>
 {% endblock %}

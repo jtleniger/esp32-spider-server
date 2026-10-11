@@ -122,9 +122,6 @@ pub async fn logs_page(
     let today = today();
     let stamps = state.db.activations_for_day(&day).await?;
     let files = state.db.log_files_for_day(&compact_day(&day)).await?;
-    let total = stamps.len() as i64;
-    let shown: Vec<String> = stamps.iter().take(MAX_LISTED_STAMPS).cloned().collect();
-    let more = total - shown.len() as i64;
     let (base_url, poll_secs) = templates::page_context(&state.cfg);
 
     templates::render(&LogsView {
@@ -149,11 +146,7 @@ pub async fn logs_page(
                 size_text: util::human_size(size),
             })
             .collect(),
-        stamps: shown,
-        total,
-        no_activations: total == 0,
-        has_more: more > 0,
-        more,
+        no_activations: stamps.is_empty(),
         base_url,
         poll_secs,
     })
@@ -187,9 +180,6 @@ pub async fn logs_data(
 pub struct LogsQuery {
     pub day: Option<String>,
 }
-
-/// How many stamps the collapsed `<details>` lists before it says "… and N more".
-const MAX_LISTED_STAMPS: usize = 500;
 
 /// A day that is not a `YYYY-MM-DD` date falls back to today rather than erroring:
 /// a bad `?day=` must never 400 a navigation link.
