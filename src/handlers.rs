@@ -97,14 +97,13 @@ pub async fn mode_post(
     Ok(Html(body))
 }
 
-/// `POST /logs/clear`: wipe the rig's log files *and* the local history, which is
-/// what the button's confirmation text promises.
+/// `POST /logs/clear`: wipe the rig's log files only. The rig's memory is the scarce
+/// resource; the local history in SQLite is kept so past days keep rendering.
 pub async fn logs_clear(State(state): State<AppState>) -> Result<Html<String>, AppError> {
     let banner = match state.spider.log_clear().await {
         Ok(()) => {
-            state.db.clear_activations().await?;
-            tracing::info!("cleared spider logs and local history");
-            Some(Banner::ok("cleared spider logs and local history"))
+            tracing::info!("cleared spider log files; local history kept");
+            Some(Banner::ok("cleared spider log files; local history kept"))
         }
         Err(e) => Some(Banner::error(e.to_string())),
     };

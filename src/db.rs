@@ -154,16 +154,6 @@ impl Db {
         .await
     }
 
-    /// Forget both the activation history and the log-file bookkeeping. The next poll
-    /// re-fetches whatever the spider still holds.
-    pub async fn clear_activations(&self) -> anyhow::Result<()> {
-        self.call(|conn| {
-            conn.execute_batch("DELETE FROM activations; DELETE FROM log_files;")?;
-            Ok(())
-        })
-        .await
-    }
-
     pub async fn get_setting(&self, key: &str) -> anyhow::Result<Option<String>> {
         let key = key.to_string();
         self.call(move |conn| {
@@ -293,9 +283,5 @@ mod tests {
             .unwrap();
         let cached: Option<Vec<(String, u32)>> = db.settings_json("config_cache").await.unwrap();
         assert_eq!(cached, Some(vec![("pulse_levels".to_string(), 64)]));
-
-        db.clear_activations().await.unwrap();
-        assert!(db.activations_for_day("2026-10-11").await.unwrap().is_empty());
-        assert!(db.log_files_for_day("20261011").await.unwrap().is_empty());
     }
 }
