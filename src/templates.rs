@@ -150,6 +150,7 @@ pub struct KnobView {
     pub max: u32,
     pub default: u32,
     pub unit: &'static str,
+    pub desc: &'static str,
 }
 
 pub struct GroupView {
@@ -222,6 +223,7 @@ pub fn config_form(
                     max: k.max,
                     default: k.default,
                     unit: crate::tuning::unit_of(k.name),
+                    desc: k.desc,
                 })
                 .collect(),
         })

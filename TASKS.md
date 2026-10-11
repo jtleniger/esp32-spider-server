@@ -5,7 +5,7 @@
 [x] Add space between 4 main mode buttons and single channel mode, and simplify the UI "Single Channel" -> Dropdown -> "Apply"
 [x] Remove "Activation Timestamps" collapse from logs, I don't need to see them in the UI
 [x] Display chart on logs page in local browser time
-[] Referencing ../esp32-spider, include description text for each configuration value
+[x] Referencing ../esp32-spider, include description text for each configuration value
 [] Change text to "Save" and "Reset" on config page
 [] Change interval for activation ingestion to once every half hour
 [] UI is ugly, refactor it to be a consistent orange purple and black theme and remove all gradients and make the layout better. Use a CSS framework if needed

@@ -159,6 +159,7 @@ legend {
 }
 
 .knob:last-child { border-bottom: none; }
+.knob-name { display: flex; flex-direction: column; gap: 0.1rem; }
 .knob label { color: var(--bone); font-size: 0.86rem; }
 .knob small { color: var(--muted); font-size: 0.76rem; }
 

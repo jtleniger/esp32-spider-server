@@ -7,7 +7,10 @@
       <legend>{{ g.name }}</legend>
       {% for k in g.knobs %}
       <div class="knob">
-        <label for="{{ k.name }}">{{ k.name }}</label>
+        <div class="knob-name">
+          <label for="{{ k.name }}">{{ k.name }}</label>
+          <small class="desc">{{ k.desc }}</small>
+        </div>
         {% match k.value %}{% when Some with (v) %}<input type="number" id="{{ k.name }}" name="{{ k.name }}" min="{{ k.min }}" max="{{ k.max }}" value="{{ v }}">{% when None %}<input type="number" id="{{ k.name }}" name="{{ k.name }}" min="{{ k.min }}" max="{{ k.max }}" placeholder="{{ k.default }}">{% endmatch %}
         <small>{{ k.min }}–{{ k.max }} {{ k.unit }}, default {{ k.default }}</small>
       </div>
