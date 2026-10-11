@@ -53,6 +53,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/", get(handlers::home))
         .route("/health/partial", get(handlers::health_partial))
+        .route("/health/refresh", post(handlers::health_refresh))
         .route("/mode", post(handlers::mode_post))
         .route("/logs/clear", post(handlers::logs_clear))
         .route("/config", get(handlers::config_page).post(handlers::config_post))

@@ -52,8 +52,9 @@ pub fn spawn(state: AppState) -> tokio::task::JoinHandle<()> {
     })
 }
 
-/// One `/health` poll, plus log ingest and mode re-apply when they apply.
-async fn poll_once(state: &AppState) -> anyhow::Result<()> {
+/// One `/health` poll, plus log ingest and mode re-apply when they apply. Also
+/// driven on demand by the home page's refresh button.
+pub(crate) async fn poll_once(state: &AppState) -> anyhow::Result<()> {
     match state.spider.health().await {
         Ok(Some(health)) => {
             let rebooted = {

@@ -35,6 +35,15 @@ pub async fn health_partial(State(state): State<AppState>) -> Result<Html<String
     render_health(&state, None).await
 }
 
+/// `POST /health/refresh`: the home page's manual refresh. Runs one `/health` poll
+/// (and the log ingest it triggers) right now, then reports back in the fragment.
+pub async fn health_refresh(State(state): State<AppState>) -> Result<Html<String>, AppError> {
+    if let Err(e) = crate::poller::poll_once(&state).await {
+        tracing::warn!(error = %e, "manual health refresh failed");
+    }
+    render_health(&state, None).await
+}
+
 #[derive(Deserialize)]
 pub struct ModeForm {
     pub m: u16,

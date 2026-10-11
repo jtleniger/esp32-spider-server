@@ -77,6 +77,7 @@ Action endpoints (all HTMX, all rendered back into the page):
 | Endpoint | Effect |
 |---|---|
 | `GET /health/partial` | Health fragment; the page re-fetches it every 5 s. |
+| `POST /health/refresh` | Home page's **Refresh** button: polls `/health` immediately, then re-renders the fragment. |
 | `POST /mode` | `POST /mode?m=` on the rig, and remembers the mode. |
 | `POST /config` | Sends **only changed** knobs, at most 16 per request. |
 | `POST /config/reset` | `POST /config/reset` on the rig, then re-reads the values. |

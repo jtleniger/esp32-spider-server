@@ -3,6 +3,7 @@
   <p>
     <span class="pill {% if online %}ok{% else %}offline{% endif %}">{% if online %}online{% else %}offline{% endif %}</span>
     <span class="muted">{{ last_ok_text }}</span>
+    <button hx-post="/health/refresh" hx-target="#health" hx-swap="outerHTML" hx-disabled-elt="this">Refresh</button>
   </p>
   {% if never_seen %}<p class="muted">rig unreachable — check the light switch</p>{% endif %}
   <dl class="stats">

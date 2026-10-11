@@ -1,5 +1,5 @@
 [x] Health poll time is too aggressive, it should be every minute
-[] Add a manual health refresh button to the home page
+[x] Add a manual health refresh button to the home page
 [] Mode buttons do not update when a new mode is clicked; they should reflect the new mode
 [] "The rig forgets the mode on every boot; this server re-sends it when the uptime drops." -> remove this functionality and help text
 [] Add space between 4 main mode buttons and single channel mode, and simplify the UI "Single Channel" -> Dropdown -> "Apply"
