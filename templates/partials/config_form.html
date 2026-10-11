@@ -17,10 +17,10 @@
       {% endfor %}
     </fieldset>
     {% endfor %}
-    <button type="submit">Save changes</button>
+    <button type="submit">Save</button>
   </form>
   <form hx-post="/config/reset" hx-target="#config-form" hx-swap="outerHTML">
-    <button hx-confirm="Reset every knob to the firmware defaults?">Reset to defaults</button>
+    <button hx-confirm="Reset every knob to the firmware defaults?">Reset</button>
   </form>
   <p class="muted">Only the knobs you change are sent, and never more than 16 per request.</p>
 </div>
