@@ -6,8 +6,7 @@
 <h2>Mode</h2>
 <div class="panel">
   <form hx-post="/mode" hx-target="#health" hx-swap="outerHTML">
-    {% for m in mode_buttons %}<button name="m" value="{{ m.n }}" title="{{ m.desc }}"{% if m.active %} class="active"{% endif %}>{{ m.name }}</button>
-    {% endfor %}
+    {{ mode_buttons_html|safe }}
     <div class="knob">
       <label for="channel">Single channel (mode 1)</label>
       <select id="channel" name="c">

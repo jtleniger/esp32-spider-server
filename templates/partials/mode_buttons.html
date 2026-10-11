@@ -1,0 +1,4 @@
+<div id="mode-buttons"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for m in mode_buttons %}<button name="m" value="{{ m.n }}" title="{{ m.desc }}"{% if m.active %} class="active"{% endif %}>{{ m.name }}</button>
+  {% endfor %}
+</div>

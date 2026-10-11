@@ -110,13 +110,29 @@ pub fn mode_buttons(active: Option<u16>) -> Vec<ModeButtonView> {
         .collect()
 }
 
-/// The home page: the health fragment as already-rendered HTML (so the partial is
-/// not duplicated in two template contexts) plus the mode controls.
+/// The mode-buttons fragment. `oob` makes it an out-of-band swap, so a `/mode`
+/// response can refresh the buttons alongside the health fragment.
+#[derive(Template)]
+#[template(path = "partials/mode_buttons.html")]
+pub struct ModeButtonsView {
+    pub mode_buttons: Vec<ModeButtonView>,
+    pub oob: bool,
+}
+
+pub fn mode_buttons_view(active: Option<u16>, oob: bool) -> ModeButtonsView {
+    ModeButtonsView {
+        mode_buttons: mode_buttons(active),
+        oob,
+    }
+}
+
+/// The home page: the health fragment and the mode buttons as already-rendered HTML
+/// (so the partials are not duplicated in two template contexts).
 #[derive(Template)]
 #[template(path = "home.html")]
 pub struct HomeView {
     pub health_html: String,
-    pub mode_buttons: Vec<ModeButtonView>,
+    pub mode_buttons_html: String,
     pub channels: Vec<u16>,
     pub base_url: String,
     pub poll_secs: u64,

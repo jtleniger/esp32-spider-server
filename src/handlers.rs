@@ -20,10 +20,15 @@ use crate::util;
 pub async fn home(State(state): State<AppState>) -> Result<Html<String>, AppError> {
     let status = state.status.read().await.clone();
     let health_html = templates::render(&HealthView::new(&status, None))?.0;
+    let mode_buttons_html = templates::render(&templates::mode_buttons_view(
+        status.health.as_ref().map(|h| h.mode),
+        false,
+    ))?
+    .0;
     let (base_url, poll_secs) = templates::page_context(&state.cfg);
     templates::render(&HomeView {
         health_html,
-        mode_buttons: templates::mode_buttons(status.health.as_ref().map(|h| h.mode)),
+        mode_buttons_html,
         channels: (0..modes::CHANNELS).collect(),
         base_url,
         poll_secs,
@@ -55,6 +60,8 @@ pub async fn mode_post(
     State(state): State<AppState>,
     Form(form): Form<ModeForm>,
 ) -> Result<Html<String>, AppError> {
+    // Mode the buttons should mark active: the one just accepted, else the cached one.
+    let mut selected = None;
     let banner = if !modes::is_valid(form.m) {
         Some(Banner::error(format!("unknown mode {}", form.m)))
     } else if form.m == 1 && form.c.is_none_or(|c| c >= modes::CHANNELS) {
@@ -82,6 +89,7 @@ pub async fn mode_post(
                     health.mode = form.m;
                 }
                 drop(status);
+                selected = Some(form.m);
                 tracing::info!(mode = form.m, channel = ?form.c, "mode set");
                 Some(Banner::ok(format!("mode set to {}", modes::name(form.m))))
             }
@@ -89,7 +97,16 @@ pub async fn mode_post(
         }
     };
 
-    render_health(&state, banner).await
+    // Refresh the health fragment; on an accepted mode also refresh the mode buttons
+    // out of band, so the active button flips without a full page reload. A rejected
+    // click leaves the buttons untouched. `selected` carries the chosen mode even
+    // before the first poll has populated `status.health`.
+    let mut body = render_health(&state, banner).await?.0;
+    if selected.is_some() {
+        let buttons_html = templates::render(&templates::mode_buttons_view(selected, true))?.0;
+        body.push_str(&buttons_html);
+    }
+    Ok(Html(body))
 }
 
 /// `POST /logs/clear`: wipe the rig's log files *and* the local history, which is
