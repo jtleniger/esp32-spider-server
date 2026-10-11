@@ -27,7 +27,7 @@ impl Settings {
             .trim_end_matches('/')
             .to_string();
         let db_path = PathBuf::from(env("SPIDER_DB_PATH", "spider-server.db"));
-        let poll_secs = number("SPIDER_POLL_SECS", 10)?.max(1);
+        let poll_secs = number("SPIDER_POLL_SECS", 60)?.max(1);
         let request_timeout_secs = number("SPIDER_TIMEOUT_SECS", 5)?;
 
         Ok(Settings {

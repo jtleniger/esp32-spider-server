@@ -60,7 +60,7 @@ match `ExecStart` exactly.
 | `SPIDER_LISTEN` | `0.0.0.0:8080` | Address the UI listens on. The rig's own port 80 is on the device, not here. |
 | `SPIDER_URL` | `http://spider.local` | Spider base URL; a trailing `/` is stripped. |
 | `SPIDER_DB_PATH` | `spider-server.db` | SQLite file; parent directories are created. |
-| `SPIDER_POLL_SECS` | `10` | `/health` poll interval (0 is clamped to 1). |
+| `SPIDER_POLL_SECS` | `60` | `/health` poll interval (0 is clamped to 1). |
 | `SPIDER_TIMEOUT_SECS` | `5` | Per-request timeout for spider calls. |
 | `RUST_LOG` | `info` | `tracing` filter, e.g. `info,esp32_spider_server=debug`. |
 
