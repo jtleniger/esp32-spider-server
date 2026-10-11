@@ -17,7 +17,6 @@
     </div>
     <button name="m" value="1">Apply channel</button>
   </form>
-  <p class="muted">The rig forgets the mode on every boot; this server re-sends it when the uptime drops.</p>
   <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">Clear logs</button>
 </div>
 {% endblock %}

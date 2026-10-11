@@ -16,10 +16,9 @@ with HTMX for the actions: the browser only ever talks to this origin.
 - **Axum** router, **Askama** compile-time templates, hand-written CSS, **HTMX** for the
   action endpoints, **Chart.js** for the log histogram.
 - **SQLite** (bundled, no system library) holds the activation history, the log-file
-  bookkeeping, the last mode this server set and the last knob values it saw.
+  bookkeeping and the last knob values this server saw.
 - A background **poller** task refreshes `/health` on an interval, caches it for instant
-  page renders, ingests `/logs` files (deduped by activation timestamp) and re-applies
-  the desired mode after a reboot.
+  page renders and ingests `/logs` files (deduped by activation timestamp).
 - Static assets and both JS libraries are **embedded in the binary** (`include_bytes!`),
   so the deployment host needs no CDN access.
 
@@ -78,7 +77,7 @@ Action endpoints (all HTMX, all rendered back into the page):
 |---|---|
 | `GET /health/partial` | Health fragment; the page re-fetches it every 5 s. |
 | `POST /health/refresh` | Home page's **Refresh** button: polls `/health` immediately, then re-renders the fragment. |
-| `POST /mode` | `POST /mode?m=` on the rig, and remembers the mode. |
+| `POST /mode` | `POST /mode?m=` on the rig (`c` for mode 1), then re-renders the fragment and buttons. |
 | `POST /config` | Sends **only changed** knobs, at most 16 per request. |
 | `POST /config/reset` | `POST /config/reset` on the rig, then re-reads the values. |
 | `POST /logs/clear` | Clears the rig's log files **and** the local history. |
@@ -90,8 +89,6 @@ Action endpoints (all HTMX, all rendered back into the page):
   Keep it on your own network; it is not designed to be exposed.
 - The prop is on a light switch, so **offline is normal**: the health pill goes offline,
   pages still render from the cache, and `/logs` keeps serving history from SQLite.
-- The rig **forgets the mode on every boot** (it always comes up in mode 0). This server
-  re-sends the last mode it set whenever `/health`'s `uptime_s` drops.
 - Local history **survives spider power cycles** and restarts: activations are keyed by
   timestamp, so re-fetching a growing file or re-reading it after a restart never
   double-counts.

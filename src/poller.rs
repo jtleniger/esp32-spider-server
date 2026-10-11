@@ -1,5 +1,5 @@
-//! Background poller: keeps the cached health fresh, ingests the rig's log files
-//! into SQLite and re-applies the desired mode after a reboot.
+//! Background poller: keeps the cached health fresh and ingests the rig's log
+//! files into SQLite.
 //!
 //! The spider is on a light switch, so every failure path here logs and continues:
 //! an unreachable rig must never take the web server (or the poller) down.
@@ -52,29 +52,20 @@ pub fn spawn(state: AppState) -> tokio::task::JoinHandle<()> {
     })
 }
 
-/// One `/health` poll, plus log ingest and mode re-apply when they apply. Also
-/// driven on demand by the home page's refresh button.
+/// One `/health` poll, plus log ingest when the clock is set. Also driven on
+/// demand by the home page's refresh button.
 pub(crate) async fn poll_once(state: &AppState) -> anyhow::Result<()> {
     match state.spider.health().await {
         Ok(Some(health)) => {
-            let rebooted = {
-                let mut status = state.status.write().await;
-                let rebooted = matches!(
-                    (&status.health, health.uptime_s),
-                    (Some(prev), up) if up < prev.uptime_s
-                );
-                status.online = true;
-                status.health = Some(health.clone());
-                status.last_ok = Some(now_stamp());
-                status.last_error = None;
-                rebooted
-            };
+            let clock_set = health.clock_set;
+            let mut status = state.status.write().await;
+            status.online = true;
+            status.health = Some(health);
+            status.last_ok = Some(now_stamp());
+            status.last_error = None;
+            drop(status);
 
-            if rebooted {
-                tracing::info!(uptime_s = health.uptime_s, "rig rebooted; re-applying mode");
-                reapply_desired_mode(state).await;
-            }
-            if health.clock_set {
+            if clock_set {
                 if let Err(e) = ingest_logs(state).await {
                     tracing::warn!(error = %e, "log ingest failed");
                 }
@@ -141,34 +132,4 @@ async fn ingest_logs(state: &AppState) -> anyhow::Result<()> {
         }
     }
     Ok(())
-}
-
-/// The rig forgets the mode on every boot (it always comes up in mode 0), so a
-/// reboot is answered with the last mode this server set.
-async fn reapply_desired_mode(state: &AppState) {
-    let mode = match state.db.get_setting("desired_mode").await {
-        Ok(Some(raw)) => match raw.parse::<u16>() {
-            Ok(m) => m,
-            Err(e) => {
-                tracing::warn!(value = %raw, error = %e, "stored desired_mode is not a number");
-                return;
-            }
-        },
-        Ok(None) => return, // nothing was ever set through this server
-        Err(e) => {
-            tracing::warn!(error = %e, "reading desired_mode failed");
-            return;
-        }
-    };
-    let channel = match state.db.get_setting("desired_channel").await {
-        Ok(Some(raw)) => raw.parse::<u16>().ok(),
-        _ => None,
-    };
-    // `c` is only meaningful for mode 1; the firmware rejects it on other modes.
-    let channel = if mode == 1 { channel } else { None };
-
-    match state.spider.set_mode(mode, channel).await {
-        Ok(()) => tracing::info!(mode, "re-applied mode after reboot"),
-        Err(e) => tracing::warn!(mode, error = %e, "could not re-apply mode"),
-    }
 }

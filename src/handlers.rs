@@ -72,18 +72,6 @@ pub async fn mode_post(
     } else {
         match state.spider.set_mode(form.m, form.c).await {
             Ok(()) => {
-                state
-                    .db
-                    .set_setting("desired_mode", &form.m.to_string())
-                    .await?;
-                if form.m == 1 {
-                    if let Some(c) = form.c {
-                        state
-                            .db
-                            .set_setting("desired_channel", &c.to_string())
-                            .await?;
-                    }
-                }
                 let mut status = state.status.write().await;
                 if let Some(health) = status.health.as_mut() {
                     health.mode = form.m;

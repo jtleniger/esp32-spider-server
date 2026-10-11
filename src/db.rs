@@ -1,5 +1,5 @@
 //! SQLite storage for activation history, the log-file bookkeeping and the
-//! desired-mode memory.
+//! config-cache settings.
 //!
 //! `rusqlite::Connection` is `Send` but not `Sync`, so the mutex is taken *inside*
 //! the blocking task and `&Connection` never crosses an `.await`.
@@ -283,10 +283,10 @@ mod tests {
             vec![("20261011T170405Z.log".to_string(), 140)]
         );
 
-        assert_eq!(db.get_setting("desired_mode").await.unwrap(), None);
-        db.set_setting("desired_mode", "3").await.unwrap();
-        db.set_setting("desired_mode", "6").await.unwrap();
-        assert_eq!(db.get_setting("desired_mode").await.unwrap().as_deref(), Some("6"));
+        assert_eq!(db.get_setting("probe_key").await.unwrap(), None);
+        db.set_setting("probe_key", "3").await.unwrap();
+        db.set_setting("probe_key", "6").await.unwrap();
+        assert_eq!(db.get_setting("probe_key").await.unwrap().as_deref(), Some("6"));
 
         db.set_settings_json("config_cache", &vec![("pulse_levels", 64u32)])
             .await
