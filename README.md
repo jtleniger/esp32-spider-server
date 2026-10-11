@@ -57,7 +57,7 @@ match `ExecStart` exactly.
 
 | Env var | Default | Meaning |
 |---|---|---|
-| `SPIDER_LISTEN` | `0.0.0.0:8080` | Address the UI listens on. The rig's own port 80 is on the device, not here. |
+| `SPIDER_LISTEN` | `0.0.0.0:8003` | Address the UI listens on. The rig's own port 80 is on the device, not here. |
 | `SPIDER_URL` | `http://spider.local` | Spider base URL; a trailing `/` is stripped. |
 | `SPIDER_DB_PATH` | `spider-server.db` | SQLite file; parent directories are created. |
 | `SPIDER_POLL_SECS` | `60` | `/health` poll interval (0 is clamped to 1). |
@@ -86,7 +86,7 @@ Action endpoints (all HTMX, all rendered back into the page):
 
 ## Operational notes
 
-- **LAN only, no authentication.** Anyone who can reach port 8080 can drive the prop.
+- **LAN only, no authentication.** Anyone who can reach port 8003 can drive the prop.
   Keep it on your own network; it is not designed to be exposed.
 - The prop is on a light switch, so **offline is normal**: the health pill goes offline,
   pages still render from the cache, and `/logs` keeps serving history from SQLite.

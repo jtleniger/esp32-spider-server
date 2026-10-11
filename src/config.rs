@@ -20,7 +20,7 @@ pub struct Settings {
 
 impl Settings {
     pub fn from_env() -> anyhow::Result<Settings> {
-        let listen: SocketAddr = env("SPIDER_LISTEN", "0.0.0.0:8080")
+        let listen: SocketAddr = env("SPIDER_LISTEN", "0.0.0.0:8003")
             .parse()
             .map_err(|e| anyhow::anyhow!("invalid SPIDER_LISTEN: {e}"))?;
         let spider_url = env("SPIDER_URL", "http://spider.local")
