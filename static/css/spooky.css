@@ -162,6 +162,19 @@ legend {
 .knob label { color: var(--bone); font-size: 0.86rem; }
 .knob small { color: var(--muted); font-size: 0.76rem; }
 
+/* Single-channel picker, separated from the mode buttons above it. */
+.channel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px dotted var(--border);
+}
+
+.channel-row label { color: var(--bone); font-size: 0.86rem; }
+.channel-row button { margin: 0; }
+
 input[type=number], input[type=date], select {
   font-family: var(--mono);
   font-size: 0.9rem;

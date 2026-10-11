@@ -7,15 +7,14 @@
 <div class="panel">
   <form hx-post="/mode" hx-target="#health" hx-swap="outerHTML">
     {{ mode_buttons_html|safe }}
-    <div class="knob">
-      <label for="channel">Single channel (mode 1)</label>
+    <div class="channel-row">
+      <label for="channel">Single channel</label>
       <select id="channel" name="c">
         {% for c in channels %}<option value="{{ c }}">{{ c }}</option>
         {% endfor %}
       </select>
-      <small>lights only that channel at full brightness; ignores the radar</small>
+      <button name="m" value="1">Apply</button>
     </div>
-    <button name="m" value="1">Apply channel</button>
   </form>
   <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">Clear logs</button>
 </div>
