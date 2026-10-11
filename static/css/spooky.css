@@ -56,6 +56,22 @@ header .wrap {
   padding-block: 1rem;
 }
 
+nav a, header h1 a {
+  
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+}
+
+nav a:hover, nav a:focus-visible, header h1 a:hover {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+}
+
+header h1 a {
+  color: var(--text);
+}
+
 h1 {
   font-family: var(--serif);
   font-size: 1.5rem;
@@ -63,8 +79,6 @@ h1 {
   letter-spacing: 0.02em;
   margin: 0;
 }
-
-h1::after { content: "."; color: var(--orange); }
 
 nav {
   display: flex;
@@ -74,15 +88,8 @@ nav {
 
 nav a {
   color: var(--muted);
-  text-decoration: none;
-  padding-bottom: 3px;
-  border-bottom: 2px solid transparent;
 }
 
-nav a:hover, nav a:focus-visible {
-  color: var(--orange);
-  border-bottom-color: var(--orange);
-}
 
 /* --- page --- */
 main { padding-block: 1.75rem 3rem; }
@@ -155,9 +162,20 @@ a:hover, a:focus-visible { color: var(--purple); }
 .banner.ok { color: var(--purple); border-left-color: var(--purple); background: var(--surface-2); }
 .banner.error { color: var(--orange); border-left-color: var(--orange); background: var(--surface-2); }
 
+.status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  button {
+    margin-left: auto;
+  }
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: center;
   gap: 0.75rem 1.25rem;
   margin: 1rem 0 0;
 }
@@ -259,8 +277,9 @@ button.active {
 
 button:disabled { opacity: 0.5; cursor: default; }
 
+
 /* Single-channel picker, separated from the mode buttons above it. */
-.channel-row {
+.row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -270,9 +289,9 @@ button:disabled { opacity: 0.5; cursor: default; }
   border-top: 1px solid var(--border);
 }
 
-.channel-row label { color: var(--text); font-size: 0.86rem; }
-.channel-row select { width: auto; min-width: 5rem; }
-.channel-row button { margin: 0; }
+.row label { color: var(--text); font-size: 0.86rem; }
+.row select { width: auto; min-width: 5rem; }
+.row button { margin: 0; }
 
 /* --- tables --- */
 table {

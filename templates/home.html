@@ -1,21 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Home — ESP32 Spider Control{% endblock %}
+{% block title %}home - spidey{% endblock %}
 {% block content %}
 {{ health_html|safe }}
 
-<h2>Mode</h2>
+<h2>mode</h2>
 <div class="panel">
   <form hx-post="/mode" hx-target="#health" hx-swap="outerHTML">
     {{ mode_buttons_html|safe }}
-    <div class="channel-row">
-      <label for="channel">Single channel</label>
+    <div class="row">
+      <label for="channel">single channel</label>
       <select id="channel" name="c">
         {% for c in channels %}<option value="{{ c }}">{{ c }}</option>
         {% endfor %}
       </select>
-      <button name="m" value="1">Apply</button>
+      <button name="m" value="1">apply</button>
     </div>
   </form>
-  <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">Clear logs</button>
 </div>
 {% endblock %}

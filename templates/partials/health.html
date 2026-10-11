@@ -1,17 +1,20 @@
-<div id="health" class="panel" hx-get="/health/partial" hx-trigger="every 5s" hx-swap="outerHTML">
+<div id="health" class="panel" hx-get="/health/partial" hx-trigger="every 60s" hx-swap="outerHTML">
   {% match banner %}{% when Some with (b) %}<div class="banner {% if b.ok %}ok{% else %}error{% endif %}">{{ b.text }}</div>{% when None %}{% endmatch %}
-  <p>
+  <p class="status">
     <span class="pill {% if online %}ok{% else %}offline{% endif %}">{% if online %}online{% else %}offline{% endif %}</span>
     <span class="muted">{{ last_ok_text }}</span>
-    <button hx-post="/health/refresh" hx-target="#health" hx-swap="outerHTML" hx-disabled-elt="this">Refresh</button>
+    <button hx-post="/health/refresh" hx-target="#health" hx-swap="outerHTML" hx-disabled-elt="this">refresh</button>
   </p>
   {% if never_seen %}<p class="muted">rig unreachable — check the light switch</p>{% endif %}
   <dl class="stats">
-    <dt>Mode</dt><dd>{{ mode_label }}</dd>
-    {% match uptime_text %}{% when Some with (u) %}<dt>Uptime</dt><dd>{{ u }}</dd>{% when None %}{% endmatch %}
-    <dt>Clock</dt><dd>{{ clock_text }}</dd>
-    {% match log_files %}{% when Some with (n) %}<dt>Log files</dt><dd>{{ n }}</dd>{% when None %}{% endmatch %}
-    {% match free_text %}{% when Some with (f) %}<dt>Free space</dt><dd>{{ f }}</dd>{% when None %}{% endmatch %}
+    <dt>mode</dt><dd>{{ mode_label }}</dd>
+    {% match uptime_text %}{% when Some with (u) %}<dt>uptime</dt><dd>{{ u }}</dd>{% when None %}{% endmatch %}
+    <dt>clock</dt><dd>{{ clock_text }}</dd>
+    {% match log_files %}{% when Some with (n) %}<dt>log files</dt><dd>{{ n }}</dd>{% when None %}{% endmatch %}
+    {% match free_text %}{% when Some with (f) %}<dt>free space</dt><dd>{{ f }}</dd>{% when None %}{% endmatch %}
   </dl>
   {% match offline_reason %}{% when Some with (r) %}<p class="muted">last error: {{ r }}</p>{% when None %}{% endmatch %}
+  <div class="row">
+    <button hx-post="/logs/clear" hx-target="#health" hx-swap="outerHTML" hx-confirm="Delete every log file on the spider and all locally stored history?">clear logs</button>
+  </div>
 </div>

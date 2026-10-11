@@ -12,27 +12,27 @@ pub struct Mode {
 pub const MODES: &[Mode] = &[
     Mode {
         n: 0,
-        name: "Smolder",
+        name: "smolder",
         desc: "sleeping/waking ember eyes that agitate green on motion",
     },
     Mode {
         n: 1,
-        name: "Single channel",
+        name: "single channel",
         desc: "lights only channel c at full brightness (wiring checks)",
     },
     Mode {
         n: 2,
-        name: "Pulse",
+        name: "pulse",
         desc: "all channels breathe in lockstep",
     },
     Mode {
         n: 3,
-        name: "Stalker",
+        name: "stalker",
         desc: "one dim random-colour eye scans; motion ramps to a red pop",
     },
     Mode {
         n: 6,
-        name: "Toxic",
+        name: "toxic",
         desc: "dim green base with an orange/red spark; motion makes it frantic",
     },
 ];
@@ -43,7 +43,7 @@ pub fn name(n: u16) -> String {
         .iter()
         .find(|m| m.n == n)
         .map(|m| m.name.to_string())
-        .unwrap_or_else(|| format!("Unknown ({n})"))
+        .unwrap_or_else(|| format!("unknown ({n})"))
 }
 
 /// True for the numbers this UI offers and `POST /mode` accepts.
@@ -60,10 +60,10 @@ mod tests {
 
     #[test]
     fn known_modes_are_named_and_holes_are_not_offered() {
-        assert_eq!(name(0), "Smolder");
-        assert_eq!(name(6), "Toxic");
-        assert_eq!(name(4), "Unknown (4)");
-        assert_eq!(name(7), "Unknown (7)");
+        assert_eq!(name(0), "smolder");
+        assert_eq!(name(6), "toxic");
+        assert_eq!(name(4), "unknown (4)");
+        assert_eq!(name(7), "unknown (7)");
         assert!(is_valid(1));
         assert!(!is_valid(4));
         assert!(!is_valid(8));
