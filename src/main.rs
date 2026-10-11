@@ -47,6 +47,7 @@ async fn main() -> anyhow::Result<()> {
         db,
         spider,
         status: Arc::new(RwLock::new(Status::default())),
+        last_ingest: Arc::new(tokio::sync::Mutex::new(None)),
     };
     poller::spawn(state.clone());
 

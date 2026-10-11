@@ -34,7 +34,13 @@ pub struct AppState {
     pub db: Db,
     pub spider: Spider,
     pub status: Arc<RwLock<Status>>,
+    /// When the rig's log files were last pulled in; `None` until the first ingest.
+    /// The health poll is far more frequent than the ingest, so this gates them.
+    pub last_ingest: Arc<tokio::sync::Mutex<Option<std::time::Instant>>>,
 }
+
+/// How often the rig's log files are ingested, independent of the health poll.
+const INGEST_EVERY: Duration = Duration::from_secs(30 * 60);
 
 /// Spawn the poll loop. The first tick is skipped, so the first poll lands one
 /// interval after startup.
@@ -52,8 +58,14 @@ pub fn spawn(state: AppState) -> tokio::task::JoinHandle<()> {
     })
 }
 
-/// One `/health` poll, plus log ingest when the clock is set. Also driven on
-/// demand by the home page's refresh button.
+/// Is the ingest due again? The first poll always ingests, so a restart does not
+/// wait half an hour for the day's activations to appear.
+fn ingest_due(last: Option<std::time::Instant>, now: std::time::Instant) -> bool {
+    last.is_none_or(|last| now.duration_since(last) >= INGEST_EVERY)
+}
+
+/// One `/health` poll, plus log ingest when the clock is set and the half-hourly
+/// interval has elapsed. Also driven on demand by the home page's refresh button.
 pub(crate) async fn poll_once(state: &AppState) -> anyhow::Result<()> {
     match state.spider.health().await {
         Ok(Some(health)) => {
@@ -65,10 +77,12 @@ pub(crate) async fn poll_once(state: &AppState) -> anyhow::Result<()> {
             status.last_error = None;
             drop(status);
 
-            if clock_set {
+            if clock_set && ingest_due(*state.last_ingest.lock().await, std::time::Instant::now())
+            {
                 if let Err(e) = ingest_logs(state).await {
                     tracing::warn!(error = %e, "log ingest failed");
                 }
+                *state.last_ingest.lock().await = Some(std::time::Instant::now());
             }
         }
         Ok(None) => {
@@ -88,8 +102,9 @@ pub(crate) async fn poll_once(state: &AppState) -> anyhow::Result<()> {
 }
 
 /// Fetch the log listing and pull in every file whose size changed since the last
-/// fetch. Files are re-read whole and deduped by stamp in SQLite, so a growing file
-/// costs one request and adds only its new activations.
+/// fetch. Runs at most once per `INGEST_EVERY`, not on every health poll. Files are
+/// re-read whole and deduped by stamp in SQLite, so a growing file costs one request
+/// and adds only its new activations.
 async fn ingest_logs(state: &AppState) -> anyhow::Result<()> {
     let listing = match state.spider.log_list().await {
         Ok(l) => l,
@@ -132,4 +147,20 @@ async fn ingest_logs(state: &AppState) -> anyhow::Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Instant;
+
+    #[test]
+    fn ingest_runs_on_the_first_poll_and_then_half_hourly() {
+        let now = Instant::now();
+        assert!(ingest_due(None, now), "first poll must ingest");
+        assert!(!ingest_due(Some(now - Duration::from_secs(29 * 60)), now));
+        assert!(!ingest_due(Some(now - Duration::from_secs(1799)), now));
+        assert!(ingest_due(Some(now - INGEST_EVERY), now));
+        assert!(ingest_due(Some(now - Duration::from_secs(45 * 60)), now));
+    }
 }

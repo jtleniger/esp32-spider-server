@@ -18,7 +18,8 @@ with HTMX for the actions: the browser only ever talks to this origin.
 - **SQLite** (bundled, no system library) holds the activation history, the log-file
   bookkeeping and the last knob values this server saw.
 - A background **poller** task refreshes `/health` on an interval, caches it for instant
-  page renders and ingests `/logs` files (deduped by activation timestamp).
+  page renders, and pulls the rig's `/logs` files into SQLite (deduped by activation
+  timestamp) every 30 minutes.
 - Static assets and both JS libraries are **embedded in the binary** (`include_bytes!`),
   so the deployment host needs no CDN access.
 

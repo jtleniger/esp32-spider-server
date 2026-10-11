@@ -7,6 +7,6 @@
 [x] Display chart on logs page in local browser time
 [x] Referencing ../esp32-spider, include description text for each configuration value
 [x] Change text to "Save" and "Reset" on config page
-[] Change interval for activation ingestion to once every half hour
+[x] Change interval for activation ingestion to once every half hour
 [] UI is ugly, refactor it to be a consistent orange purple and black theme and remove all gradients and make the layout better. Use a CSS framework if needed
 [] Default port should be 8003
