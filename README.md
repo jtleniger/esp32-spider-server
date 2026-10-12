@@ -27,22 +27,39 @@ with HTMX for the actions: the browser only ever talks to this origin.
 
 - Rust ≥ 1.88 (`askama` 0.16's MSRV) and a C compiler (`cc`) for `rusqlite`'s bundled
   SQLite.
+- For the static release build (recommended): the musl C toolchain and target —
+  `sudo apt-get install musl-tools` and `rustup target add x86_64-unknown-linux-musl`
+  (the target is also added automatically by `deploy/build-static.sh`).
 - The prop running the firmware from the `esp32-spider` repository, reachable on the LAN.
 - `API.md` in this repository is the device contract; the knob table, ranges and
   cross-field constraints in `src/tuning.rs` are transcribed from it.
 
 ## Build
 
+Build a **static** binary so it runs on the deployment host regardless of that host's
+glibc:
+
 ```bash
-cargo build --release
-# binary: target/release/esp32-spider-server
+./deploy/build-static.sh
+# binary: target/x86_64-unknown-linux-musl/release/esp32-spider-server
 ```
+
+The script is a thin wrapper around
+`cargo build --release --target x86_64-unknown-linux-musl`, which links musl statically
+(`static-pie linked`, no `libc.so.6` dependency); the linker for that target is set in
+`.cargo/config.toml`.
+
+> **Why not `cargo build --release`?** The default `x86_64-unknown-linux-gnu` target
+> links the *build host's* glibc dynamically and stamps the binary with that glibc's
+> symbol versions. Built on a newer distro, it then refuses to start on an older one:
+> `version 'GLIBC_2.34' not found (required by .../esp32-spider-server)`, which is why
+> the systemd unit exits with `status=1/FAILURE`. The musl build has no such coupling.
 
 ## Install and run under systemd
 
 ```bash
 sudo install -d -o justin -g justin /home/justin/esp32-spider-server
-sudo install -m 0755 target/release/esp32-spider-server /home/justin/esp32-spider-server/
+sudo install -m 0755 target/x86_64-unknown-linux-musl/release/esp32-spider-server /home/justin/esp32-spider-server/
 sudo cp deploy/esp32-spider-server.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now esp32-spider-server
@@ -128,7 +145,7 @@ gh pr create --fill --base main        # or open the compare URL printed by the 
 ```
 
 Run `cargo test` (knob table, constraint ordering, log-name and stamp parsing, bucketing)
-and `cargo build --release` before pushing. `API.md` is the source of truth for the device
+and `./deploy/build-static.sh` before pushing. `API.md` is the source of truth for the device
 contract; if the firmware changes a knob or a constraint, update `src/tuning.rs` and
 `API.md` together — the tests assert the table shape but not its agreement with the
 document.

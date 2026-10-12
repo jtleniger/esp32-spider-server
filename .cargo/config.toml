@@ -1,0 +1,13 @@
+# Static, glibc-independent release builds.
+#
+# `x86_64-unknown-linux-gnu` binaries dynamically link the build host's glibc and
+# carry its symbol versions (e.g. GLIBC_2.34), so a binary built on a newer distro
+# will not start on an older one. Building for `x86_64-unknown-linux-musl` links
+# musl statically and drops the libc.so.6 dependency entirely.
+#
+# Requires the target and a musl C toolchain (for the bundled SQLite in rusqlite):
+#   sudo apt-get install musl-tools
+#   rustup target add x86_64-unknown-linux-musl
+# Then: cargo build --release --target x86_64-unknown-linux-musl
+[target.x86_64-unknown-linux-musl]
+linker = "musl-gcc"
