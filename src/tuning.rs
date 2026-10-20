@@ -19,7 +19,7 @@ pub struct Knob {
     pub desc: &'static str,
 }
 
-/// All 58 knobs, in `API.md` order. Ranges are inclusive; `max` is the firmware's own
+/// All 63 knobs, in `API.md` order. Ranges are inclusive; `max` is the firmware's own
 /// ceiling (`kMaxPwm` = 4095, `kTuningMaxMs` = 3600000, `kTuningMaxStepMs` = 60000).
 pub const KNOBS: &[Knob] = &[
     // --- pulse_* — mode 2 (Pulse) ---
@@ -32,6 +32,12 @@ pub const KNOBS: &[Knob] = &[
     Knob { name: "smolder_levels", group: "smolder embers", min: 1, max: 4095, default: 64, desc: "rungs the crossfade quantises to" },
     Knob { name: "smolder_flicker_pwm", group: "smolder embers", min: 0, max: 4095, default: 1400, desc: "ember noise at full brightness (scales with level)" },
     Knob { name: "smolder_flicker_step_ms", group: "smolder embers", min: 1, max: 60000, default: 47, desc: "flicker refresh interval" },
+    // --- smolder_blink_* — mode 0 awake blinks ---
+    Knob { name: "smolder_blink_min_gap_ms", group: "smolder blinks", min: 1, max: 3600000, default: 4000, desc: "shortest quiet gap between awake blinks" },
+    Knob { name: "smolder_blink_max_gap_ms", group: "smolder blinks", min: 1, max: 3600000, default: 12000, desc: "longest quiet gap between awake blinks" },
+    Knob { name: "smolder_blink_close_ms", group: "smolder blinks", min: 1, max: 3600000, default: 120, desc: "eyelid fade to fully off" },
+    Knob { name: "smolder_blink_hold_ms", group: "smolder blinks", min: 0, max: 3600000, default: 60, desc: "time held fully off" },
+    Knob { name: "smolder_blink_open_ms", group: "smolder blinks", min: 1, max: 3600000, default: 180, desc: "eyelid fade back to the live ember level" },
     // --- sleep/wake machine — mode 0 ---
     Knob { name: "smolder_sleep_after_ms", group: "sleep / wake", min: 1, max: 3600000, default: 30000, desc: "earliest sleep onset while quiet" },
     Knob { name: "smolder_sleep_deadline_ms", group: "sleep / wake", min: 1, max: 3600000, default: 240000, desc: "forced onset by here" },
@@ -153,13 +159,14 @@ pub struct Constraint {
     pub reported: &'static str,
 }
 
-/// The ten cross-field constraints, normalised to `lo < hi` (`toxic_spark_*` is
+/// The eleven cross-field constraints, normalised to `lo < hi` (`toxic_spark_*` is
 /// inverted on the wire: idle > fast, i.e. fast < idle).
 pub const CONSTRAINTS: &[Constraint] = &[
     Constraint { lo: "smolder_sleep_after_ms", hi: "smolder_sleep_deadline_ms", reported: "smolder_sleep_after_ms" },
     Constraint { lo: "smolder_sleep_min_ms", hi: "smolder_sleep_max_ms", reported: "smolder_sleep_min_ms" },
     Constraint { lo: "sleep_fall_min_ms", hi: "sleep_fall_max_ms", reported: "sleep_fall_min_ms" },
     Constraint { lo: "sleep_open_min_gap_ms", hi: "sleep_open_max_gap_ms", reported: "sleep_open_min_gap_ms" },
+    Constraint { lo: "smolder_blink_min_gap_ms", hi: "smolder_blink_max_gap_ms", reported: "smolder_blink_min_gap_ms" },
     Constraint { lo: "sleep_dip_end_ms", hi: "sleep_flare_end_ms", reported: "sleep_dip_end_ms" },
     Constraint { lo: "sleep_flare_end_ms", hi: "sleep_gesture_ms", reported: "sleep_flare_end_ms" },
     Constraint { lo: "sleep_dip_permille", hi: "sleep_flare_permille", reported: "sleep_dip_permille" },
@@ -282,8 +289,8 @@ mod tests {
 
     #[test]
     fn table_matches_the_api_document() {
-        assert_eq!(KNOBS.len(), 58);
-        assert_eq!(CONSTRAINTS.len(), 10);
+        assert_eq!(KNOBS.len(), 63);
+        assert_eq!(CONSTRAINTS.len(), 11);
         for k in KNOBS {
             assert!(k.max >= k.min, "{}: max < min", k.name);
             assert!(
@@ -306,6 +313,7 @@ mod tests {
             vec![
                 ("pulse", 3),
                 ("smolder embers", 5),
+                ("smolder blinks", 5),
                 ("sleep / wake", 16),
                 ("agitation (green)", 13),
                 ("stalker", 9),

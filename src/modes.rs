@@ -13,7 +13,7 @@ pub const MODES: &[Mode] = &[
     Mode {
         n: 0,
         name: "smolder",
-        desc: "sleeping/waking ember eyes that agitate green on motion",
+        desc: "awake ember eyes with occasional one-eye blinks, sleeping/waking, green agitation on motion",
     },
     Mode {
         n: 1,

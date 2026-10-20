@@ -40,7 +40,9 @@ pub struct LogListing {
 
 #[derive(Debug)]
 pub enum SpiderError {
-    /// Connection refused, DNS failure or timeout: the rig is powered off or off the LAN.
+    /// DNS failure, connection refused or timeout: the rig is powered off or off the
+    /// LAN. Carries `reqwest`'s cause chain, so a name that does not resolve says so
+    /// instead of looking like a dead host.
     Offline(String),
     /// The firmware rejected the request (`400`) and the body names the field.
     BadRequest(String),
@@ -87,7 +89,7 @@ impl Spider {
             .get(format!("{}/health", self.base))
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
             return Ok(None);
@@ -108,7 +110,7 @@ impl Spider {
             .get(format!("{}/config", self.base))
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if !status.is_success() {
             return Err(classify(status, resp.text().await.unwrap_or_default()));
@@ -131,7 +133,7 @@ impl Spider {
             .query(&query)
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if status.is_success() {
             return Ok(());
@@ -156,7 +158,7 @@ impl Spider {
             .query(&query)
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if status.is_success() {
             return Ok(());
@@ -171,7 +173,7 @@ impl Spider {
             .get(format!("{}/logs", self.base))
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if !status.is_success() {
             return Err(classify(status, resp.text().await.unwrap_or_default()));
@@ -191,7 +193,7 @@ impl Spider {
             .get(format!("{}/logs/{}", self.base, name))
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if status.is_success() {
             return resp
@@ -219,13 +221,28 @@ impl Spider {
             .post(format!("{}{path}", self.base))
             .send()
             .await
-            .map_err(|e| SpiderError::Offline(e.to_string()))?;
+            .map_err(offline)?;
         let status = resp.status();
         if status.is_success() {
             return Ok(());
         }
         Err(classify(status, resp.text().await.unwrap_or_default()))
     }
+}
+
+/// `reqwest`'s own `Display` for a send failure is only "error sending request for
+/// url (…)", which is identical whether the name does not resolve, the connection was
+/// refused or the timeout expired. Walking the `source` chain adds the actual cause,
+/// e.g. "dns error: failed to lookup address information: Name does not resolve".
+fn offline(e: reqwest::Error) -> SpiderError {
+    let mut msg = e.to_string();
+    let mut source = std::error::Error::source(&e);
+    while let Some(cause) = source {
+        msg.push_str(": ");
+        msg.push_str(&cause.to_string());
+        source = cause.source();
+    }
+    SpiderError::Offline(msg)
 }
 
 /// `503` means "link down"; everything else that is not a success is a `400` whose
