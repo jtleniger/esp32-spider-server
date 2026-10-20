@@ -111,7 +111,7 @@ POST /mode?m=1&c=7
 
 | Mode | Name | Behaviour |
 |---|---|---|
-| `0` | Smolder | default; sleeping/waking ember eyes that agitate green on motion |
+| `0` | Smolder | default; awake ember eyes with occasional one-eye blinks, sleeping/waking, green agitation on motion |
 | `1` | Single channel | lights only channel `?c=` at full brightness (wiring checks) |
 | `2` | Pulse | all channels breathe in lockstep |
 | `3` | Stalker | one dim random-colour eye scans; motion ramps to a red pop |
@@ -169,7 +169,7 @@ Rules — all load-bearing:
 - **All-or-nothing**: one unknown name, one out-of-range value, or a set that
   violates a cross-field constraint (below) rejects the *whole* request. A
   partial tuning state can never be left behind.
-- **At most 16 arguments per request** (`kMaxEdits`). There are 58 knobs, so a
+- **At most 16 arguments per request** (`kMaxEdits`). There are 63 knobs, so a
   form that submits everything at once is rejected. Send only the changed
   fields; if more than 16 changed, split into batches (each batch is validated
   against the result of the previous, so batches must each be self-consistent).
@@ -209,7 +209,7 @@ edit).
 
 ## Knob reference
 
-All 58 keys of `GET /config` / `POST /config`. Types are the JSON/wire sense
+All 63 keys of `GET /config` / `POST /config`. Types are the JSON/wire sense
 (all integers): `ms` = milliseconds, `pwm` = TLC5947 PWM counts (12-bit,
 `0..4095`), `permille` = thousandths (`0..1000`), `levels` = number of
 quantisation rungs. Ranges are inclusive.
@@ -233,6 +233,25 @@ Crossfade full cycle = `2 × (smolder_dwell_ms + smolder_fade_ms)`.
 | `smolder_levels` | 64 | 1 | 4095 | rungs the crossfade quantises to |
 | `smolder_flicker_pwm` | 1400 | 0 | 4095 | ember noise at full brightness (scales with level) |
 | `smolder_flicker_step_ms` | 47 | 1 | 60000 | flicker refresh interval |
+
+### `smolder_blink_*` — mode 0 awake blinks
+
+While the embers are awake and not agitated, one randomly chosen eye now and
+then closes over its live ember level: both of that eye's warm channels fade to
+off, hold dark, then fade back to whatever the crossfade is doing. Gaps are
+measured after the open, so events cannot overlap. The sleep machine's
+half-opens are separate and still only run while asleep.
+
+Blink span = `smolder_blink_close_ms + smolder_blink_hold_ms +
+smolder_blink_open_ms`.
+
+| Knob | Default | Min | Max | Meaning |
+|---|---|---|---|---|
+| `smolder_blink_min_gap_ms` | 4000 | 1 | 3600000 | shortest quiet gap between awake blinks |
+| `smolder_blink_max_gap_ms` | 12000 | 1 | 3600000 | longest quiet gap between awake blinks |
+| `smolder_blink_close_ms` | 120 | 1 | 3600000 | eyelid fade to fully off |
+| `smolder_blink_hold_ms` | 60 | 0 | 3600000 | time held fully off |
+| `smolder_blink_open_ms` | 180 | 1 | 3600000 | eyelid fade back to the live ember level |
 
 ### sleep/wake machine — mode 0
 
@@ -320,6 +339,7 @@ not get a rejected batch. The `400` names the first field of the pair below.
 | `smolder_sleep_min_ms < smolder_sleep_max_ms` | `smolder_sleep_min_ms` |
 | `sleep_fall_min_ms < sleep_fall_max_ms` | `sleep_fall_min_ms` |
 | `sleep_open_min_gap_ms < sleep_open_max_gap_ms` | `sleep_open_min_gap_ms` |
+| `smolder_blink_min_gap_ms < smolder_blink_max_gap_ms` | `smolder_blink_min_gap_ms` |
 | `sleep_dip_end_ms < sleep_flare_end_ms` | `sleep_dip_end_ms` |
 | `sleep_flare_end_ms < sleep_gesture_ms` | `sleep_flare_end_ms` |
 | `sleep_dip_permille < sleep_flare_permille` | `sleep_dip_permille` |

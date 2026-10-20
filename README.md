@@ -85,7 +85,7 @@ the folder in `ExecStart` exactly.
 | Path | What it shows |
 |---|---|
 | `/` | Health (online/offline, mode, uptime, clock, log count, free space) plus the mode buttons and the clear-logs action. |
-| `/config` | All 58 tuning knobs, grouped as `API.md` groups them, each with its meaning, range and default. |
+| `/config` | All 63 tuning knobs, grouped as `API.md` groups them, each with its meaning, range and default. |
 | `/logs` | One UTC day of activations: a five-minute histogram (288 buckets, axis labels in your browser's timezone) and the log files seen for that day. |
 
 Action endpoints (all HTMX, all rendered back into the page):
@@ -122,7 +122,7 @@ Action endpoints (all HTMX, all rendered back into the page):
   server that answers on port 8003 means the listening process is not this unit: check
   `systemctl status esp32-spider-server`, `ss -ltnp 'sport = :8003'`, and
   `ls -l /proc/<pid>/fd/1` to see where its output actually goes.
-- Tuning changes are validated locally against the knob ranges and the ten cross-field
+- Tuning changes are validated locally against the knob ranges and the eleven cross-field
   constraints, so a batch the firmware would reject with a `400` is usually rejected here
   with the same field name and no request at all. `400` bodies from the rig are shown
   verbatim.
