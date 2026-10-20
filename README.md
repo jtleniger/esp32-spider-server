@@ -27,39 +27,35 @@ with HTMX for the actions: the browser only ever talks to this origin.
 
 - Rust ≥ 1.88 (`askama` 0.16's MSRV) and a C compiler (`cc`) for `rusqlite`'s bundled
   SQLite.
-- For the static release build (recommended): the musl C toolchain and target —
-  `sudo apt-get install musl-tools` and `rustup target add x86_64-unknown-linux-musl`
-  (the target is also added automatically by `deploy/build-static.sh`).
 - The prop running the firmware from the `esp32-spider` repository, reachable on the LAN.
 - `API.md` in this repository is the device contract; the knob table, ranges and
   cross-field constraints in `src/tuning.rs` are transcribed from it.
 
 ## Build
 
-Build a **static** binary so it runs on the deployment host regardless of that host's
-glibc:
-
 ```bash
-./deploy/build-static.sh
-# binary: target/x86_64-unknown-linux-musl/release/esp32-spider-server
+cargo build --release
+# binary: target/release/esp32-spider-server
 ```
 
-The script is a thin wrapper around
-`cargo build --release --target x86_64-unknown-linux-musl`, which links musl statically
-(`static-pie linked`, no `libc.so.6` dependency); the linker for that target is set in
-`.cargo/config.toml`.
+The release binary links the *build host's* glibc, so build it on the oldest distro you
+deploy to: built on a newer one, it refuses to start on an older with
+`version 'GLIBC_2.34' not found (required by .../esp32-spider-server)`, and the systemd
+unit exits with `status=1/FAILURE`.
 
-> **Why not `cargo build --release`?** The default `x86_64-unknown-linux-gnu` target
-> links the *build host's* glibc dynamically and stamps the binary with that glibc's
-> symbol versions. Built on a newer distro, it then refuses to start on an older one:
-> `version 'GLIBC_2.34' not found (required by .../esp32-spider-server)`, which is why
-> the systemd unit exits with `status=1/FAILURE`. The musl build has no such coupling.
+> **Do not ship a `x86_64-unknown-linux-musl` static build of this server.**
+> `spider.local` is resolved by an NSS module — `nss-mdns`/avahi, or `systemd-resolved`
+> with mDNS enabled — and a static musl binary has no NSS support at all: it consults
+> only `/etc/hosts` and unicast DNS. It therefore reports
+> `spider unreachable: error sending request for url (http://spider.local/health)`
+> while the same name resolves fine from the host's shell. musl is still usable for
+> portability, but then `SPIDER_URL` must be a numeric IP.
 
 ## Install and run under systemd
 
 ```bash
 sudo install -d -o justin -g justin /home/justin/esp32-spider-server
-sudo install -m 0755 target/x86_64-unknown-linux-musl/release/esp32-spider-server /home/justin/esp32-spider-server/
+sudo install -m 0755 target/release/esp32-spider-server /home/justin/esp32-spider-server/
 sudo cp deploy/esp32-spider-server.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now esp32-spider-server
@@ -117,8 +113,15 @@ Action endpoints (all HTMX, all rendered back into the page):
   in SQLite is kept, so `/logs` still renders every day already ingested.
 - The rig returns at most the **newest 32** log files from `/logs`; older files are never
   fetched. `/health`'s `log_files` is the true count.
-- `spider.local` needs mDNS (nss-mdns/avahi) on the host. If it does not resolve, set
-  `SPIDER_URL` to the IP the firmware prints on serial (`WiFi up: http://<ip>`).
+- `spider.local` needs mDNS on the host: `nss-mdns`/avahi, or `systemd-resolved` with
+  mDNS enabled. Check it with `getent hosts spider.local`; if that fails, set
+  `SPIDER_URL` to the IP the firmware prints on serial (`WiFi up: http://<ip>`). A
+  static musl build of this server can never resolve `.local` — see **Build**.
+- The process logs to stdout/stderr only, so under systemd the journal is the single
+  place it writes (`journalctl -u esp32-spider-server -f`). An empty journal for a
+  server that answers on port 8003 means the listening process is not this unit: check
+  `systemctl status esp32-spider-server`, `ss -ltnp 'sport = :8003'`, and
+  `ls -l /proc/<pid>/fd/1` to see where its output actually goes.
 - Tuning changes are validated locally against the knob ranges and the ten cross-field
   constraints, so a batch the firmware would reject with a `400` is usually rejected here
   with the same field name and no request at all. `400` bodies from the rig are shown
@@ -145,7 +148,7 @@ gh pr create --fill --base main        # or open the compare URL printed by the 
 ```
 
 Run `cargo test` (knob table, constraint ordering, log-name and stamp parsing, bucketing)
-and `./deploy/build-static.sh` before pushing. `API.md` is the source of truth for the device
+and `cargo build --release` before pushing. `API.md` is the source of truth for the device
 contract; if the firmware changes a knob or a constraint, update `src/tuning.rs` and
 `API.md` together — the tests assert the table shape but not its agreement with the
 document.
